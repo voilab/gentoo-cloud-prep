@@ -19,9 +19,13 @@ echo 'vm.swappiness = 0' >> /etc/sysctl.conf
 # Let's configure out grub
 mkdir /boot/grub
 echo 'GRUB_CMDLINE_LINUX="console=tty0 console=ttyS0,115200n8"' >> /etc/default/grub
+echo "(hd0) `grub2-probe -t device /`" > /boot/grub/device.map
 grub2-mkconfig -o /boot/grub/grub.cfg
+sed -i "s/set root='hd0'//g" /boot/grub/grub.cfg
+sed -r -i "s/--hint='hd0' *//g" /boot/grub/grub.cfg
 sed -r -i 's/loop[0-9]+p1/vda2/g' /boot/grub/grub.cfg
 sed -i 's/UUID=[a-z,0-9,-]*/\/dev\/vda2/g' /boot/grub/grub.cfg
+rm /boot/grub/device.map
 
 # And the fstab
 echo '/dev/vda2 / ext4 defaults 0 0' > /etc/fstab
@@ -52,9 +56,9 @@ nameserver 8.8.8.8
 EOL
 
 # let's upgrade (security fixes and otherwise)
-USE="-build" emerge -uDNv --with-bdeps=y --jobs=2 @world
+FEATURES="-userfetch -userpriv" USE="-build" emerge -uDNv --with-bdeps=y @world
 USE="-build" emerge --verbose=n --depclean
-USE="-build" emerge -v --usepkg=n @preserved-rebuild
+FEATURES="-userfetch -userpriv" USE="-build" emerge -v --usepkg=n @preserved-rebuild
 etc-update --automode -3
 
 # Clean up portage
