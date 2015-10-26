@@ -11,18 +11,7 @@
 set -e -u -x -o pipefail
 
 # Vars
-export DATE=${DATE:-"$(date +%Y%m%d)"}
-export OUTDIR=${OUTDIR:-"/root/tmp/catalyst/gentoo"}
-export GIT_BASE_DIR=${GIT_BASE_DIR:-$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )}
-# profiles supported are as follows
-# default/linux/amd64/13.0
-# default/linux/amd64/13.0/no-multilib
-# hardened/linux/amd64
-# hardened/linux/amd64/no-multilib
-# hardened/linux/amd64/selinux (eventually)
-# hardened/linux/amd64/no-multilib/selinux (eventually)
-export PROFILE=${PROFILE:-"default/linux/amd64/13.0"}
-
+. gentoo-cloud.config
 
 if [[ "${PROFILE}" == "default/linux/amd64/13.0" ]]; then
   PROFILE_SHORTNAME="amd64-default"
@@ -45,7 +34,7 @@ else
   exit 1
 fi
 export OUTFILE=${OUTFILE:-"${OUTDIR}/stage4-${PROFILE_SHORTNAME}-${DATE}.tar.bz2"}
-export SPECFILE=${SPECFILE:-"/root/tmp/catalyst/stage4-${PROFILE_SHORTNAME}.spec"}
+export SPECFILE=${SPECFILE:-"${OUTDIR}/stage4-${PROFILE_SHORTNAME}.spec"}
 mkdir -p "${OUTDIR}"
 
 # Build the spec file, first
@@ -66,11 +55,11 @@ snapshot: latest
 version_stamp: ${DATE}
 
 # Stage 4 stuff
-stage4/use: bash-completion bzip2 idm urandom ipv6 mmx sse sse2 abi_x86_32 abi_x86_64
-stage4/packages: eix vim bc cloud-init syslog-ng logrotate vixie-cron dhcpcd sudo gentoolkit iproute2 grub:2 lsb-release gptfdisk dmidecode acpid
-stage4/fsscript: files/prep.sh
+stage4/use: ${STAGE4_USE}
+stage4/packages: ${STAGE4_PACKAGES}
+stage4/fsscript: ${STAGE4_FSSCRIPT}
 stage4/root_overlay: root-overlay
-stage4/rcadd: syslog-ng|default sshd|default vixie-cron|default cloud-config|default cloud-init-local|default cloud-init|default cloud-final|default netmount|default acpid|default dhcpcd|default net.lo|default
+stage4/rcadd: ${STAGE4_RCADD}
 
 boot/kernel: gentoo
 boot/kernel/gentoo/sources: ${KERNEL_SOURCES}

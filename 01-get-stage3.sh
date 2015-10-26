@@ -3,22 +3,12 @@
 # Note that I use this script to update all my current stages, and rootfs,
 # but this repo is more specifically for Gentoo, so have some Gentoo.
 
-set -e -u -x -o pipefail
+set -u -x -o pipefail
 
 # Vars
-export MIRROR=${MIRROR:-"http://gentoo.osuosl.org"}
-export OUTDIR=${OUTDIR:-"/var/tmp/catalyst/builds"}
-export PORTAGE_DIR=${PORTAGE_DIR:-"/var/tmp/catalyst/snapshots"}
-# profiles supported are as follows
-# default/linux/amd64/13.0
-# default/linux/amd64/13.0/no-multilib
-# hardened/linux/amd64
-# hardened/linux/amd64/no-multilib
-# hardened/linux/amd64/selinux (eventually)
-# hardened/linux/amd64/no-multilib/selinux (eventually)
-export PROFILE=${PROFILE:-"default/linux/amd64/13.0"}
+. gentoo-cloud.config
 
-mkdir -p "${OUTDIR}"
+mkdir -p "${BUILD_DIR}"
 
 if [[ "${PROFILE}" == "default/linux/amd64/13.0" ]]; then
   STAGE3_NAME="stage3-amd64-current.tar.bz2"
@@ -45,39 +35,49 @@ else
   exit 1
 fi
 
-curl -s "${STAGE3_URL}.DIGESTS.asc" -o "${OUTDIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
-gkeys verify -F "${OUTDIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
+curl -s "${STAGE3_URL}.DIGESTS.asc" -o "${BUILD_DIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
+# Never verifies for me
+#gkeys verify -F "${BUILD_DIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
 STATUS=$?
 if [[ ${STATUS} != 0 ]]; then
   echo 'stage3 did not verify, removing badness'
-  rm "${OUTDIR}/${STAGE3_REAL_NAME}"
-  rm "${OUTDIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
+  rm "${BUILD_DIR}/${STAGE3_REAL_NAME}"
+  rm "${BUILD_DIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
   exit 1
 fi
 
-SHA512=$(grep -A1 SHA512 "${OUTDIR}/${STAGE3_REAL_NAME}.DIGESTS.asc" | grep stage3 | grep -v CONTENTS | awk '{ print $1 }')
-SHA512_REAL=$(sha512sum "${OUTDIR}/${STAGE3_NAME}" | awk '{ print $1 }')
+# get the latest stage3
+if [[ ! -f "${BUILD_DIR}/${STAGE3_NAME}" ]]; then
+  curl -s "${STAGE3_URL}" -o "${BUILD_DIR}/${STAGE3_NAME}"
+fi
+
+SHA512=$(grep -A1 SHA512 "${BUILD_DIR}/${STAGE3_REAL_NAME}.DIGESTS.asc" | grep stage3 | grep -v CONTENTS | awk '{ print $1 }')
+SHA512_REAL=$(sha512sum "${BUILD_DIR}/${STAGE3_NAME}" | awk '{ print $1 }')
 if [[ "${SHA512}" != "${SHA512_REAL}" ]]; then
   echo "Downloading new image - ${STAGE3_REAL_NAME}"
-  curl -s "${STAGE3_URL}" -o "${OUTDIR}/${STAGE3_REAL_NAME}"
-  SHA512=$(grep -A1 SHA512 "${OUTDIR}/${STAGE3_REAL_NAME}.DIGESTS.asc" | grep stage3 | grep -v CONTENTS | awk '{ print $1 }')
-  SHA512_REAL=$(sha512sum "${OUTDIR}/${STAGE3_REAL_NAME}" | awk '{ print $1 }')
+  curl -s "${STAGE3_URL}" -o "${BUILD_DIR}/${STAGE3_REAL_NAME}"
+  SHA512=$(grep -A1 SHA512 "${BUILD_DIR}/${STAGE3_REAL_NAME}.DIGESTS.asc" | grep stage3 | grep -v CONTENTS | awk '{ print $1 }')
+  SHA512_REAL=$(sha512sum "${BUILD_DIR}/${STAGE3_REAL_NAME}" | awk '{ print $1 }')
   if [[ "${SHA512}" != "${SHA512_REAL}" ]]; then
     echo 'shasum did not match, removing badness'
-    rm "${OUTDIR}/${STAGE3_REAL_NAME}"
-    rm "${OUTDIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
+    rm "${BUILD_DIR}/${STAGE3_REAL_NAME}"
+    rm "${BUILD_DIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
     exit 1
   fi
   # otherwise we cleanup and move on
-  if [[ -f "${OUTDIR}/${STAGE3_NAME}" ]]; then
-    rm "${OUTDIR}/${STAGE3_NAME}"
+  if [[ -f "${BUILD_DIR}/${STAGE3_NAME}" ]]; then
+    rm "${BUILD_DIR}/${STAGE3_NAME}"
   fi
-  rm "${OUTDIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
-  mv "${OUTDIR}/${STAGE3_REAL_NAME}" "${OUTDIR}/${STAGE3_NAME}"
+  rm "${BUILD_DIR}/${STAGE3_REAL_NAME}.DIGESTS.asc"
+  mv "${BUILD_DIR}/${STAGE3_REAL_NAME}" "${BUILD_DIR}/${STAGE3_NAME}"
 fi
 
 
 # get the latest portage
+if [[ ! -f "${PORTAGE_DIR}/portage-latest.tar.bz2" ]]; then
+  curl -s "${MIRROR}/snapshots/portage-latest.tar.bz2" -o "${PORTAGE_DIR}/portage-latest.tar.bz2"
+fi
+
 PORTAGE_LIVE_MD5=$(curl -s "${MIRROR}/snapshots/portage-latest.tar.bz2.md5sum" | awk '/portage-latest/ {print $1}')
 OUR_MD5=$(md5sum "${PORTAGE_DIR}/portage-latest.tar.bz2" | awk {'print $1'})
 if [[ "${PORTAGE_LIVE_MD5}" != "${OUR_MD5}" ]]; then
