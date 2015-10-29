@@ -37,6 +37,13 @@ export OUTFILE=${OUTFILE:-"${OUTDIR}/stage4-${PROFILE_SHORTNAME}-${DATE}.tar.bz2
 export SPECFILE=${SPECFILE:-"${OUTDIR}/stage4-${PROFILE_SHORTNAME}.spec"}
 mkdir -p "${OUTDIR}"
 
+# Build the post catalyst script. Inject the user script if provided.
+cat "${DIR}/files/01-prep.sh" > "${OUTDIR}/prep.sh"
+if [[ -f "${STAGE4_FSSCRIPT}" ]]; then
+  cat "${STAGE4_FSSCRIPT}" >> "${OUTDIR}/prep.sh"
+fi
+cat "${DIR}/files/02-cleanup.sh" >> "${OUTDIR}/prep.sh"
+
 # Build the spec file, first
 cat > "${SPECFILE}" << EOF
 subarch: amd64
@@ -44,7 +51,7 @@ target: stage4
 rel_type: ${PROFILE_SHORTNAME}
 profile: ${PROFILE}
 source_subpath: ${SOURCE_SUBPATH}
-cflags: -O2 -pipe -march=core2
+cflags: -O2 -pipe -march=core2 -fomit-frame-pointer
 
 pkgcache_path: /tmp/packages-${PROFILE_SHORTNAME}
 kerncache_path: /tmp/kernel-${PROFILE_SHORTNAME}
@@ -57,7 +64,7 @@ version_stamp: ${DATE}
 # Stage 4 stuff
 stage4/use: ${STAGE4_USE}
 stage4/packages: ${STAGE4_PACKAGES}
-stage4/fsscript: ${STAGE4_FSSCRIPT}
+stage4/fsscript: ${OUTDIR}/prep.sh
 stage4/root_overlay: root-overlay
 stage4/rcadd: ${STAGE4_RCADD}
 
@@ -71,8 +78,8 @@ EOF
 # Run catalyst
 catalyst -f "${SPECFILE}"
 
-# Clean up the spec file
-rm "${SPECFILE}"
+# Clean up the spec file and post install script
+rm "${SPECFILE}" "${OUTDIR}/prep.sh"
 
 # Move the outputted image
 mv "/var/tmp/catalyst/builds/${PROFILE_SHORTNAME}/stage4-amd64-${DATE}.tar.bz2" "${OUTFILE}"
