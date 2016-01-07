@@ -24,7 +24,7 @@ fi
 
 TARBALL=${TARBALL:-"${OUTDIR}/stage4-${PROFILE_SHORTNAME}-${DATE}.tar.bz2"}
 TEMP_IMAGE=${TEMP_IMAGE:-"gentoo-${PROFILE_SHORTNAME}.img"}
-TARGET_IMAGE=${TARGET_IMAGE:-"${OUTDIR}/openstack-${PROFILE_SHORTNAME}-${DATE}.qcow2"}
+TARGET_IMAGE=${TARGET_IMAGE:-"openstack-${PROFILE_SHORTNAME}-${DATE}.qcow2"}
 
 # create a raw partition and do stuff with it
 truncate -s 4G "${OUTDIR}/${TEMP_IMAGE}"
@@ -37,7 +37,7 @@ parted -s --align=none "${BLOCK_DEV}" mkpart bios_boot 0 2M
 parted -s --align=none "${BLOCK_DEV}" mkpart primary 2M 100%
 parted -s "${BLOCK_DEV}" set 1 boot on
 parted -s "${BLOCK_DEV}" set 1 bios_grub on
-mkfs.ext4 -F "${BLOCK_DEV}p2"
+mkfs.ext4 -i 4096 -F "${BLOCK_DEV}p2"
 
 # Mount it
 echo 'Mounting disk'
@@ -66,7 +66,7 @@ umount "${MOUNT_DIR}/${PROFILE_SHORTNAME}"
 losetup -d "${BLOCK_DEV}"
 
 echo 'Converting raw image to qcow2'
-qemu-img convert -c -f raw -O qcow2 "${OUTDIR}/${TEMP_IMAGE}" "${TARGET_IMAGE}"
+qemu-img convert -c -f raw -O qcow2 "${OUTDIR}/${TEMP_IMAGE}" "${OUTDIR}/${TARGET_IMAGE}"
 
 echo 'Cleaning up'
 rm "${OUTDIR}/${TEMP_IMAGE}"

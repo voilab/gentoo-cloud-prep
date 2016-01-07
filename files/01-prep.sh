@@ -59,4 +59,4 @@ EOL
 FEATURES="-userfetch -userpriv" USE="-build" emerge -uDNv --with-bdeps=y @world
 USE="-build" emerge --verbose=n --depclean
 FEATURES="-userfetch -userpriv" USE="-build" emerge -v --usepkg=n @preserved-rebuild
-etc-update --automode -3
+etc-update --automode -5
