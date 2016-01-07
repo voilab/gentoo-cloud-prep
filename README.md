@@ -27,6 +27,26 @@ set the profile you want, valid ones are as follows
 
 Of note to hardened users is that this uses catalyst, which uses chroots, so you need to allow grsec things for chroots
 
+### Environment variables
+
+The following environment variables are used to customize the build process.
+
+__MIRROR__: `http://gentoo.osuosl.org`
+The Gentoo mirror used to download stage3 and portage archives. See https://www.gentoo.org/downloads/mirrors/
+
+__BUILD_DIR__: `/var/tmp/catalyst/builds`
+Catalyst build directory. Must match your settings in `/etc/catalyst/catalyst.conf`.
+
+__PORTAGE_DIR__: `/var/tmp/catalyst/snapshots`
+Directory in which the portage snapshots are stored. Must match your settings in `/etc/catalyst/catalyst.conf`.
+
+__PROFILE__: `default/linux/amd64/13.0`
+Profiles supported are as follows:
+* default/linux/amd64/13.0
+* default/linux/amd64/13.0/no-multilib
+* hardened/linux/amd64
+* hardened/linux/amd64/no-multilib
+
 ### Quick Overview: What do?
 
 - `01-get-stage3.sh` will get the latest stage3 for you, from whatever mirror is supplied in the script.  You can use the default, but it's throttled for traffic outside my IP range.
