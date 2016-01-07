@@ -27,7 +27,7 @@ TEMP_IMAGE=${TEMP_IMAGE:-"gentoo-${PROFILE_SHORTNAME}.img"}
 TARGET_IMAGE=${TARGET_IMAGE:-"openstack-${PROFILE_SHORTNAME}-${DATE}.qcow2"}
 
 # create a raw partition and do stuff with it
-truncate -s 4G "${OUTDIR}/${TEMP_IMAGE}"
+truncate -s 5G "${OUTDIR}/${TEMP_IMAGE}"
 BLOCK_DEV=$(losetup -f --show "${OUTDIR}/${TEMP_IMAGE}")
 
 # Okay, we have the disk, let's prep it
@@ -49,8 +49,8 @@ echo 'Expanding tarball'
 tar --xattrs -xjpf "${TARBALL}" -C "${MOUNT_DIR}/${PROFILE_SHORTNAME}"
 
 if [[ ${ADD_PORTAGE} != 0 ]]; then
-  echo 'Adding in /usr/portage'
-  tar --xattrs -xjpf "${PORTAGE_DIR}/portage-latest.tar.bz2" -C "${MOUNT_DIR}/${PROFILE_SHORTNAME}/usr"
+echo 'Adding in /usr/portage'
+tar --xattrs -xjpf "${PORTAGE_DIR}/portage-latest.tar.bz2" -C "${MOUNT_DIR}/${PROFILE_SHORTNAME}/usr"
 fi
 
 # Install grub

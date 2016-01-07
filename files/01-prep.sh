@@ -19,13 +19,14 @@ echo 'vm.swappiness = 0' >> /etc/sysctl.conf
 # Let's configure out grub
 mkdir /boot/grub
 echo 'GRUB_CMDLINE_LINUX="console=tty0 console=ttyS0,115200n8"' >> /etc/default/grub
-echo "(hd0) `grub2-probe -t device /`" > /boot/grub/device.map
+#echo "(hd0) `grub2-probe -t device /`" > /boot/grub/device.map
 grub2-mkconfig -o /boot/grub/grub.cfg
-sed -i "s/set root='hd0'//g" /boot/grub/grub.cfg
-sed -r -i "s/--hint='hd0' *//g" /boot/grub/grub.cfg
+#sed -i "s/set root='hd0'//g" /boot/grub/grub.cfg
+#sed -r -i "s/--hint='hd0' *//g" /boot/grub/grub.cfg
 sed -r -i 's/loop[0-9]+p1/vda2/g' /boot/grub/grub.cfg
-sed -i 's/UUID=[a-z,0-9,-]*/\/dev\/vda2/g' /boot/grub/grub.cfg
-rm /boot/grub/device.map
+#sed -i 's/UUID=[a-z,0-9,-]*/\/dev\/vda2/g' /boot/grub/grub.cfg
+#rm /boot/grub/device.map
+sed -i 's/root=.*\ ro/root=\/dev\/vda2\ ro/' /boot/grub/grub.cfg
 
 # And the fstab
 echo '/dev/vda2 / ext4 defaults 0 0' > /etc/fstab
