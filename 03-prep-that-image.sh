@@ -27,7 +27,7 @@ TEMP_IMAGE=${TEMP_IMAGE:-"gentoo-${PROFILE_SHORTNAME}.img"}
 TARGET_IMAGE=${TARGET_IMAGE:-"openstack-${PROFILE_SHORTNAME}-${DATE}.qcow2"}
 
 # create a raw partition and do stuff with it
-truncate -s 5G "${OUTDIR}/${TEMP_IMAGE}"
+truncate -s 2G "${OUTDIR}/${TEMP_IMAGE}"
 BLOCK_DEV=$(losetup -f --show "${OUTDIR}/${TEMP_IMAGE}")
 
 # Okay, we have the disk, let's prep it
