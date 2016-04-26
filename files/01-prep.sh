@@ -19,7 +19,7 @@ echo 'vm.swappiness = 0' >> /etc/sysctl.conf
 # Let's configure out grub
 mkdir /boot/grub
 echo 'GRUB_CMDLINE_LINUX="console=tty0 console=ttyS0,115200n8"' >> /etc/default/grub
-#echo "(hd0) `grub2-probe -t device /`" > /boot/grub/device.map
+echo "(hd0) `grub2-probe -t device /`" > /boot/grub/device.map
 grub2-mkconfig -o /boot/grub/grub.cfg
 #sed -i "s/set root='hd0'//g" /boot/grub/grub.cfg
 #sed -r -i "s/--hint='hd0' *//g" /boot/grub/grub.cfg
@@ -55,6 +55,9 @@ chown root:root /etc/conf.d/hostname
 cat > /etc/resolv.conf << EOL
 nameserver 8.8.8.8
 EOL
+
+# ZFS
+FEATURES="-userfetch -userpriv" emerge zfs
 
 # let's upgrade (security fixes and otherwise)
 FEATURES="-userfetch -userpriv" USE="-build" emerge -uDNv --with-bdeps=y @world

@@ -87,7 +87,7 @@ if [[ "${PORTAGE_LIVE_MD5}" != "${OUR_MD5}" ]]; then
   fi
   curl -s "${MIRROR}/snapshots/portage-latest.tar.bz2" -o "${PORTAGE_DIR}/portage-latest.tar.bz2"
   curl -s "${MIRROR}/snapshots/portage-latest.tar.bz2.gpgsig" -o "${PORTAGE_DIR}/portage-latest.tar.bz2.gpgsig"
-  gkeys verify -F "${PORTAGE_DIR}/portage-latest.tar.bz2"
+  #gkeys verify -F "${PORTAGE_DIR}/portage-latest.tar.bz2"
   STATUS=$?
   if [[ ${STATUS} != 0 ]]; then
     echo 'tarball did not verify, removing badness'
