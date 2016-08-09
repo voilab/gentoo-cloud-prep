@@ -16,19 +16,15 @@ set -e -u -x -o pipefail
 if [[ "${PROFILE}" == "default/linux/amd64/13.0" ]]; then
   PROFILE_SHORTNAME="amd64-default"
   SOURCE_SUBPATH="stage3-amd64-current"
-  KERNEL_SOURCES="gentoo-sources"
 elif [[ "${PROFILE}" == "default/linux/amd64/13.0/no-multilib" ]]; then
   PROFILE_SHORTNAME="amd64-default-nomultilib"
   SOURCE_SUBPATH="stage3-amd64-nomultilib-current"
-  KERNEL_SOURCES="gentoo-sources"
 elif [[ "${PROFILE}" == "hardened/linux/amd64" ]]; then
   PROFILE_SHORTNAME="amd64-hardened"
   SOURCE_SUBPATH="stage3-amd64-hardened-current"
-  KERNEL_SOURCES="hardened-sources"
 elif [[ "${PROFILE}" == "hardened/linux/amd64/no-multilib" ]]; then
   PROFILE_SHORTNAME="amd64-hardened-nomultilib"
   SOURCE_SUBPATH="stage3-amd64-hardened-nomultilib-current"
-  KERNEL_SOURCES="hardened-sources"
 else
   echo 'invalid profile, exiting'
   exit 1
@@ -39,8 +35,12 @@ mkdir -p "${OUTDIR}"
 
 # Build the post catalyst script. Inject the user script if provided.
 cat "${DIR}/files/01-prep.sh" > "${OUTDIR}/prep.sh"
+echo >> "${OUTDIR}/prep.sh"
 if [[ -f "${STAGE4_FSSCRIPT}" ]]; then
+  echo "# --- ${STAGE4_FSSCRIPT} ---" >> "${OUTDIR}/prep.sh"
   cat "${STAGE4_FSSCRIPT}" >> "${OUTDIR}/prep.sh"
+  echo >> "${OUTDIR}/prep.sh"
+  echo "# --- ${STAGE4_FSSCRIPT} ---" >> "${OUTDIR}/prep.sh"
 fi
 cat "${DIR}/files/02-cleanup.sh" >> "${OUTDIR}/prep.sh"
 

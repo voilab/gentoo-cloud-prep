@@ -1,11 +1,24 @@
 #!/bin/bash
 
+# Cloud-init
+sed -i 's/name: gentoo/name: admin/g' /etc/cloud/cloud.cfg
+
+sed -i 's/ bindist//g' /etc/portage/make.conf
+chown :portage -Rf /usr/local/overlay
+chmod g+w -Rf /usr/local/overlay
+emerge --sync --verbose=n
+
 # Set timezone
-echo 'UTC' > /etc/timezone
+echo "Europe/Zurich" > /etc/timezone
+emerge --config timezone-data
 
 # Set locale
-echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen
-echo 'en_US ISO-8859-1' >> /etc/locale.gen
+cat >> /etc/locale.gen << "EOL"
+en_US.UTF-8 UTF-8
+en_US ISO-8859-1
+en_GB.UTF-8 UTF-8
+en_GB ISO-8859-1
+EOL
 locale-gen
 eselect locale set en_US.utf8
 
@@ -52,10 +65,11 @@ nameserver 8.8.8.8
 EOL
 
 # ZFS
-FEATURES="-userfetch -userpriv" emerge zfs
+FEATURES="-userfetch -userpriv" emerge --verbose=n zfs
 
 # let's upgrade (security fixes and otherwise)
-FEATURES="-userfetch -userpriv" USE="-build" emerge -uDNv --with-bdeps=y @world
+FEATURES="-userfetch -userpriv" USE="-build" emerge -j 2 --verbose=n -uDN --with-bdeps=y @world
 USE="-build" emerge --verbose=n --depclean
-FEATURES="-userfetch -userpriv" USE="-build" emerge -v --usepkg=n @preserved-rebuild
+FEATURES="-userfetch -userpriv" USE="-build" emerge -j 2 --verbose=n --usepkg=n @preserved-rebuild
 etc-update --automode -5
+

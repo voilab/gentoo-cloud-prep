@@ -2,7 +2,7 @@
 emerge --verbose=n --depclean
 eix-update
 emaint all -f
-eselect news read all
+eselect news read all > /dev/null
 eclean-dist --destructive
 sed -i '/^USE=\"\${USE}\ \ build\"$/d' /etc/portage/make.conf
 
