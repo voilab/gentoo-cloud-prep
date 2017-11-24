@@ -4,7 +4,7 @@
 # and we spray that stage4 all over it.  Then we rub some grub (0.97) all over
 # it to make it feel better, and then we box it up and ship it out.
 
-set -e -u -x -o pipefail
+set -e -u -o pipefail
 
 # Vars
 . gentoo-cloud.config
@@ -56,7 +56,7 @@ fi
 
 # Install grub
 echo 'Installing grub'
-grub2-install "${BLOCK_DEV}" --root-directory "${MOUNT_DIR}/${PROFILE_SHORTNAME}/"
+grub-install "${BLOCK_DEV}" --root-directory "${MOUNT_DIR}/${PROFILE_SHORTNAME}/"
 
 # Clean up
 echo 'Syncing; unmounting'

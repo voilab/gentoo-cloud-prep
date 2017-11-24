@@ -8,7 +8,7 @@
 # your own scenario.  I have a VM that poops out images for me, and these
 # are the fields I use.
 
-set -e -u -x -o pipefail
+set -e -u -o pipefail
 
 # Vars
 . gentoo-cloud.config
@@ -53,8 +53,8 @@ profile: ${PROFILE}
 source_subpath: ${SOURCE_SUBPATH}
 cflags: -O2 -pipe -march=core2 -fomit-frame-pointer
 
-pkgcache_path: /tmp/packages-${PROFILE_SHORTNAME}
-kerncache_path: /tmp/kernel-${PROFILE_SHORTNAME}
+pkgcache_path: /var/tmp/catalyst/tmp/packages-${PROFILE_SHORTNAME}
+kerncache_path: /var/tmp/catalyst/tmp/kernel-${PROFILE_SHORTNAME}
 portage_confdir: ${GIT_BASE_DIR}/portage_overlay
 
 # Probably best made as parameters
@@ -72,12 +72,12 @@ boot/kernel: gentoo
 boot/kernel/gentoo/sources: ${KERNEL_SOURCES}
 boot/kernel/gentoo/config: files/kernel-${PROFILE_SHORTNAME}.config
 boot/kernel/gentoo/extraversion: openstack
-boot/kernel/gentoo/gk_kernargs: --all-ramdisk-modules
+boot/kernel/gentoo/gk_kernargs: --all-ramdisk-modules --makeopts=-j16
 
 # all of the cleanup...
 stage4/unmerge:
   sys-kernel/genkernel
-  sys-kernel/gentoo-sources
+  sys-kernel/${KERNEL_SOURCES}
 
 stage4/empty:
   /root/.ccache

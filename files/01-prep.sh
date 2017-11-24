@@ -3,7 +3,6 @@
 # Cloud-init
 sed -i 's/name: gentoo/name: admin/g' /etc/cloud/cloud.cfg
 
-sed -i 's/ bindist//g' /etc/portage/make.conf
 chown :portage -Rf /usr/local/overlay
 chmod g+w -Rf /usr/local/overlay
 emerge --sync --verbose=n

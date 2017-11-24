@@ -1,0 +1,5 @@
+dev-db/couchbase-server-enterprise ~amd64
+app-misc/elasticsearch ~amd64
+=sys-fs/zfs-0.7.3 ~amd64
+=sys-fs/zfs-kmod-0.7.3 ~amd64
+=sys-kernel/spl-0.7.3 ~amd64

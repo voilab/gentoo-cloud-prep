@@ -3,7 +3,7 @@
 # Note that I use this script to update all my current stages, and rootfs,
 # but this repo is more specifically for Gentoo, so have some Gentoo.
 
-set -u -x -o pipefail
+set -u -o pipefail
 
 # Vars
 . gentoo-cloud.config

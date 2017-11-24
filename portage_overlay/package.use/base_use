@@ -1,0 +1,7 @@
+sys-boot/grub grub_platforms_pc
+net-firewall/ipset -modules
+dev-db/mariadb galera innodb-lz4 innodb-lzo innodb-snappy sst-rsync tcmalloc
+sys-libs/ncurses tinfo
+app-text/ghostscript-gpl cups
+app-eselect/eselect-php fpm
+dev-lang/php mysql ctype truetype bcmath cgi intl fpm unicode mhash hash mysqli soap cgi session xml iconv pdo json sockets sqlite xmlrpc zip curl nls

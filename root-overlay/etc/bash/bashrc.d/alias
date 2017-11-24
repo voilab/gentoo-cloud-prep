@@ -1,0 +1,4 @@
+alias ll="ls -alh --color"
+alias ..="cd .."
+alias emerge="sudo emerge -avt"
+
